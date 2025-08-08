@@ -11,7 +11,7 @@ import {
   Save,
   Calendar
 } from 'lucide-react';
-import { database } from '../services/database';
+import { supabaseService } from '../services/supabaseService';
 import { alertService } from '../services/alertService';
 import { Patient } from '../types';
 import toast from 'react-hot-toast';
@@ -52,7 +52,7 @@ export function PatientsView({ onDataChange }: PatientsViewProps) {
   }, [patients, searchTerm, filterRisk, filterStatus]);
 
   const loadPatients = async () => {
-    const data = await database.getPatients();
+    const data = await supabaseService.getPatients();
     setPatients(data);
   };
 
@@ -119,13 +119,13 @@ export function PatientsView({ onDataChange }: PatientsViewProps) {
       const nextCheckupDate = alertService.calculateNextCheckupDate(data.lastExamDate, data.riskProfile);
       
       if (editingPatient) {
-        await database.updatePatient(editingPatient.id, {
+        await supabaseService.updatePatient(editingPatient.id, {
           ...data,
           nextCheckupDate
         });
         toast.success('Paciente atualizado com sucesso!');
       } else {
-        await database.createPatient({
+        await supabaseService.createPatient({
           ...data,
           nextCheckupDate
         });
@@ -145,7 +145,7 @@ export function PatientsView({ onDataChange }: PatientsViewProps) {
   const deletePatient = async (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir este paciente?')) {
       try {
-        await database.deletePatient(id);
+        await supabaseService.deletePatient(id);
         toast.success('Paciente excluído com sucesso!');
         await loadPatients();
         onDataChange();

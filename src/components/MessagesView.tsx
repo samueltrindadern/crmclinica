@@ -10,7 +10,7 @@ import {
   Clock,
   AlertCircle
 } from 'lucide-react';
-import { database } from '../services/database';
+import { supabaseService } from '../services/supabaseService';
 import { Message } from '../types';
 
 export function MessagesView() {
@@ -29,7 +29,7 @@ export function MessagesView() {
   }, [messages, searchTerm, filterType, filterStatus]);
 
   const loadMessages = async () => {
-    const data = await database.getMessages();
+    const data = await supabaseService.getMessages();
     setMessages(data.sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()));
   };
 

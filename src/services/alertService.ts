@@ -1,4 +1,4 @@
-import { database } from './database';
+import { supabaseService } from './supabaseService';
 import { Patient, Alert } from '../types';
 import { addMonths, isBefore, isAfter, subDays } from 'date-fns';
 
@@ -31,8 +31,8 @@ export class AlertService {
   }
 
   private async checkAndCreateAlerts() {
-    const patients = await database.getPatients();
-    const existingAlerts = await database.getAlerts();
+    const patients = await supabaseService.getPatients();
+    const existingAlerts = await supabaseService.getAlerts();
     
     for (const patient of patients) {
       if (patient.status !== 'ativo') continue;
@@ -58,7 +58,7 @@ export class AlertService {
   }
 
   private async createCheckupReminder(patient: Patient) {
-    await database.createAlert({
+    await supabaseService.createAlert({
       patientId: patient.id,
       patientName: patient.name,
       type: 'checkup_reminder',
@@ -69,7 +69,7 @@ export class AlertService {
   }
 
   private async createOverdueAlert(patient: Patient) {
-    await database.createAlert({
+    await supabaseService.createAlert({
       patientId: patient.id,
       patientName: patient.name,
       type: 'overdue',
@@ -99,13 +99,14 @@ export class AlertService {
   }
 
   async sendAlert(alertId: string): Promise<boolean> {
-    const alert = (await database.getAlerts()).find(a => a.id === alertId);
+    const alerts = await supabaseService.getAlerts();
+    const alert = alerts.find(a => a.id === alertId);
     if (!alert) return false;
 
-    const patient = await database.getPatient(alert.patientId);
+    const patient = await supabaseService.getPatient(alert.patientId);
     if (!patient) return false;
 
-    const clinicSettings = await database.getClinicSettings();
+    const clinicSettings = await supabaseService.getClinicSettings();
     if (!clinicSettings) return false;
 
     try {
@@ -116,12 +117,12 @@ export class AlertService {
       await this.sendEmailMessage(patient, alert, clinicSettings);
 
       // Atualiza status do alerta
-      await database.updateAlert(alertId, { status: 'sent' });
+      await supabaseService.updateAlert(alertId, { status: 'sent' });
 
       return true;
     } catch (error) {
       console.error('Erro ao enviar alerta:', error);
-      await database.updateAlert(alertId, { status: 'failed' });
+      await supabaseService.updateAlert(alertId, { status: 'failed' });
       return false;
     }
   }
@@ -132,7 +133,7 @@ export class AlertService {
       .replace('{exame}', patient.examType);
 
     // Simula envio via WhatsApp API
-    await database.createMessage({
+    await supabaseService.createMessage({
       patientId: patient.id,
       patientName: patient.name,
       type: 'whatsapp',
@@ -150,7 +151,7 @@ export class AlertService {
       .replace('{exame}', patient.examType);
 
     // Simula envio via E-mail API
-    await database.createMessage({
+    await supabaseService.createMessage({
       patientId: patient.id,
       patientName: patient.name,
       type: 'email',

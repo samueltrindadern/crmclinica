@@ -47,35 +47,49 @@ Sistema web completo para gestão automatizada de check-ups e lembretes para cl�
 ## 🛠️ Tecnologias Utilizadas
 
 - **Frontend**: React 18 + TypeScript
+- **Backend**: Supabase (PostgreSQL + Auth + Real-time)
 - **Styling**: Tailwind CSS
 - **Formulários**: React Hook Form
 - **Notificações**: React Hot Toast
 - **Ícones**: Lucide React
 - **Datas**: date-fns
 - **Build**: Vite
+- **Database**: PostgreSQL com Row Level Security (RLS)
+- **Authentication**: Supabase Auth
 
 ## 📋 Dados de Teste
 
-**Login do Administrador:**
-- E-mail: `admin@clinica.com`
-- Senha: `admin123`
+**Configuração Inicial:**
+1. Conecte-se ao Supabase clicando em "Connect to Supabase"
+2. O sistema criará automaticamente o esquema do banco de dados
+3. Dados de exemplo serão inseridos automaticamente
+4. Use o sistema de autenticação do Supabase para criar usuários
 
 ## 🚀 Como Usar
 
 ### 1. Instalação
 ```bash
 npm install
+```
+
+### 2. Configuração do Banco de Dados
+1. Clique em "Connect to Supabase" no canto superior direito
+2. O sistema criará automaticamente todas as tabelas necessárias
+3. Dados de exemplo serão inseridos para demonstração
+
+### 3. Executar o Sistema
+```bash
 npm run dev
 ```
 
-### 2. Acesso ao Sistema
-1. Acesse o sistema com as credenciais de teste
+### 4. Acesso ao Sistema
+1. Crie uma conta ou faça login com Supabase Auth
 2. Navegue pelo dashboard para ver as métricas
 3. Cadastre novos pacientes na seção "Pacientes"
 4. Configure os dados da clínica em "Configurações"
 5. Monitore alertas e mensagens nas respectivas seções
 
-### 3. Fluxo de Trabalho
+### 5. Fluxo de Trabalho
 1. **Cadastro**: Adicione pacientes com dados completos
 2. **Monitoramento**: O sistema calcula automaticamente as datas de retorno
 3. **Alertas**: Alertas são criados automaticamente 7 dias antes
@@ -118,9 +132,8 @@ npm run dev
 
 ### Variáveis de Ambiente
 ```env
-VITE_WHATSAPP_API_URL=sua_api_whatsapp
-VITE_EMAIL_API_URL=sua_api_email
-VITE_DATABASE_URL=sua_database_url
+VITE_SUPABASE_URL=sua_url_supabase
+VITE_SUPABASE_ANON_KEY=sua_chave_anonima_supabase
 ```
 
 ### Deploy
@@ -132,10 +145,10 @@ O sistema está pronto para deploy em:
 - Qualquer provedor que suporte React
 
 ### Integrações Necessárias
-1. **WhatsApp Business API** - Para envio de mensagens
-2. **SMTP/SendGrid** - Para envio de e-mails
-3. **Banco de Dados** - PostgreSQL/MySQL recomendado
-4. **Cron Jobs** - Para monitoramento automático
+1. **Supabase** - Banco de dados e autenticação (já configurado)
+2. **WhatsApp Business API** - Para envio real de mensagens
+3. **SMTP/SendGrid** - Para envio real de e-mails
+4. **Cron Jobs/Edge Functions** - Para monitoramento automático
 
 ## 📞 Suporte
 
@@ -143,9 +156,12 @@ Sistema desenvolvido para uso imediato em clínicas médicas. Todas as funcional
 
 **Características:**
 - ✅ Interface responsiva (desktop e mobile)
+- ✅ Banco de dados real (Supabase/PostgreSQL)
+- ✅ Autenticação segura com RLS
 - ✅ Validação completa de formulários
 - ✅ Sistema de notificações
 - ✅ Dados persistentes
+- ✅ Triggers automáticos no banco
 - ✅ Cálculos automáticos
 - ✅ Filtros e buscas
 - ✅ Design profissional

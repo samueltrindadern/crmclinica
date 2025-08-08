@@ -15,7 +15,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { database } from '../services/database';
+import { supabaseService } from '../services/supabaseService';
 import { alertService } from '../services/alertService';
 import { Patient, Message, Alert } from '../types';
 import { PatientsView } from './PatientsView';
@@ -51,9 +51,9 @@ export function Dashboard() {
 
   const loadData = async () => {
     const [patientsData, messagesData, alertsData] = await Promise.all([
-      database.getPatients(),
-      database.getMessages(),
-      database.getAlerts()
+      supabaseService.getPatients(),
+      supabaseService.getMessages(),
+      supabaseService.getAlerts()
     ]);
 
     setPatients(patientsData);

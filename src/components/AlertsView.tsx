@@ -11,7 +11,7 @@ import {
   Mail,
   Smartphone
 } from 'lucide-react';
-import { database } from '../services/database';
+import { supabaseService } from '../services/supabaseService';
 import { alertService } from '../services/alertService';
 import { Alert } from '../types';
 import toast from 'react-hot-toast';
@@ -36,7 +36,7 @@ export function AlertsView({ onDataChange }: AlertsViewProps) {
   }, [alerts, filterType, filterStatus]);
 
   const loadAlerts = async () => {
-    const data = await database.getAlerts();
+    const data = await supabaseService.getAlerts();
     setAlerts(data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
   };
 

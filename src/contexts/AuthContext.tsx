@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
-import { database } from '../services/database';
+import { supabaseService } from '../services/supabaseService';
+import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 
 interface AuthContextType {
@@ -18,22 +19,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Verifica se há usuário logado no localStorage
-    const savedUser = localStorage.getItem('checkup-user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setIsLoading(false);
+    // Verifica se há usuário logado no Supabase
+    const checkUser = async () => {
+      try {
+        const currentUser = await supabaseService.getCurrentUser();
+        setUser(currentUser);
+      } catch (error) {
+        console.error('Erro ao verificar usuário:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkUser();
+
+    // Escuta mudanças na autenticação
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          try {
+            const currentUser = await supabaseService.getCurrentUser();
+            setUser(currentUser);
+          } catch (error) {
+            console.error('Erro ao buscar dados do usuário:', error);
+          }
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
-      const authenticatedUser = await database.authenticateUser(email, password);
+      const authenticatedUser = await supabaseService.signInWithEmail(email, password);
       
       if (authenticatedUser) {
         setUser(authenticatedUser);
-        localStorage.setItem('checkup-user', JSON.stringify(authenticatedUser));
         toast.success('Login realizado com sucesso!');
         return true;
       } else {
@@ -49,23 +74,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('checkup-user');
-    toast.success('Logout realizado com sucesso!');
+    supabaseService.signOut().then(() => {
+      setUser(null);
+      toast.success('Logout realizado com sucesso!');
+    }).catch((error) => {
+      console.error('Erro ao fazer logout:', error);
+      toast.error('Erro ao fazer logout');
+    });
   };
 
   const resetPassword = async (email: string): Promise<boolean> => {
     try {
-      const user = await database.getUser(email);
-      if (user) {
-        // Simula envio de e-mail de recuperação
-        toast.success('E-mail de recuperação enviado!');
-        return true;
-      } else {
-        toast.error('E-mail não encontrado');
-        return false;
-      }
+      await supabaseService.resetPassword(email);
+      toast.success('E-mail de recuperação enviado!');
+      return true;
     } catch (error) {
+      console.error('Erro ao enviar e-mail de recuperação:', error);
       toast.error('Erro ao enviar e-mail de recuperação');
       return false;
     }

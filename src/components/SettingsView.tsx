@@ -9,7 +9,7 @@ import {
   Save,
   Check
 } from 'lucide-react';
-import { database } from '../services/database';
+import { supabaseService } from '../services/supabaseService';
 import { ClinicSettings } from '../types';
 import toast from 'react-hot-toast';
 
@@ -40,7 +40,7 @@ export function SettingsView() {
   }, []);
 
   const loadSettings = async () => {
-    const data = await database.getClinicSettings();
+    const data = await supabaseService.getClinicSettings();
     if (data) {
       setSettings(data);
       reset({
@@ -63,7 +63,7 @@ export function SettingsView() {
   const onSubmit = async (data: SettingsFormData) => {
     setIsLoading(true);
     try {
-      await database.updateClinicSettings(data);
+      await supabaseService.updateClinicSettings(data);
       toast.success('Configurações salvas com sucesso!');
       await loadSettings();
     } catch (error) {
